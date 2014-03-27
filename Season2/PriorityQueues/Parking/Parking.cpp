@@ -1,5 +1,5 @@
+#include <vector>
 #include <fstream>
-#include <set>
 using namespace std;
 
 #define TASK "parking"
@@ -7,33 +7,46 @@ using namespace std;
 ifstream cin(TASK ".in");
 ofstream cout(TASK ".out");
 
+class Dsu {
+public:
+    Dsu(int n) {
+        id.resize(n);
+
+        for (int i = 0; i < n; i++) {
+            id[i] = i;
+        }
+    }
+
+    int getId(int v) {
+        return (v == id[v]) ? v : (id[v] = getId(id[v]));
+    }
+
+    void join(int v, int u) {
+        v = getId(v);
+        u = getId(u);
+
+        id[u] = v;
+    }
+
+private:
+    vector <int> id;
+};
+
 int main() {
-	int n, m;
-	cin >> n >> m;
+    int n;
+    cin >> n;
 
-	set <int> free;
+    Dsu dsu(n);
 	for (int i = 0; i < n; i++) {
-		free.insert(i);
-	}
+        int v;
+        cin >> v;
+        --v;
+		v = dsu.getId(v);
+		
+		dsu.join((v + 1) % n, v);
 
-	while (m--) {
-		string op;
-		cin >> op;
-		int v;
-		cin >> v;
-		--v;
-		if (op == "enter") {
-			set<int>::iterator it = free.lower_bound(v);
-			if (it == free.end()) {
-				it = free.lower_bound(0);
-			}
-			int pos = *it + 1;
-			cout << pos << "\n";
-			free.erase(it);
-		} else if (op == "exit") {
-			free.insert(v);
-		}
-	}
-	
-	return 0;
+		cout << (v + 1) << "\n";
+    }
+
+    return 0;
 }
